@@ -15,7 +15,6 @@ We'll use Gapminder World Data as the dataset for this sprint project. The csv f
 
 Make atomic commits for each step (you can make multiple commits per step, which is encouraged).
 
-
 ## The Rules
 
 - **Time:** 60 minutes of work, followed by presentations.
@@ -64,3 +63,35 @@ Install `ipykernel` for Jupyter.
 Create a kernel for the virtual environment that you can use in Jupyter lab/notebook.
 
     python -m ipykernel install --user --name project_env_kernel_name
+
+## Kickstarter code
+
+```python 
+import pandas as pd
+
+# Load the data
+data_table = pd.read_csv('./data/data.csv')
+
+# Tidy the data 
+# e.g., pd.melt(), pd.pivot_table(), etc. or custom code (using for loops if needed) 
+
+# Save the tidy data 
+# This is just a placeholder
+tidy_data_table.to_csv('./data/preprocessed/tidy_data.csv', index=False)
+```
+
+
+```python 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the tidy data 
+tidy_mortality_data = pd.read_csv('./data/preprocessed/tidy_mortality_data.csv')
+tidy_gdp_data = pd.read_csv('./data/preprocessed/tidy_gdp_data.csv')
+
+# Merge the datasets with key column geo and year 
+data_table = pd.merge(tidy_mortality_data, tidy_gdp_data, on=['geo', 'year'])
+
+# Plot the scatter plot 
+# Use sns.scatterplot plot with colors indicating the year of the data sample
+```
