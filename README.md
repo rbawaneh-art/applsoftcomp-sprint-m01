@@ -28,6 +28,9 @@ You must create and work in three separate branches, merging each into `master` 
 2. Write a documentation in papers/NOTE.md explaining your data cleaning strategy, visualization choices, and key insights.
 3. Commit and push your work, then merge into `master`.
 
+**Final Step: Reproducibility**
+After merging all three branches into `master`, create a `run.sh` script in the project root that executes your entire pipeline. This script should process raw data, generate all outputs, and create the final visualization. Test it by deleting your generated files and running `bash run.sh` to verify everything reproduces correctly. Commit and push this script to `master`.
+
 Make atomic commits for each step (you can make multiple commits per step, which is encouraged).
 
 ## The Rules
@@ -39,11 +42,12 @@ Make atomic commits for each step (you can make multiple commits per step, which
 
 ## Evaluation
 
-Judges evaluate three dimensions:
+Judges evaluate four dimensions:
 
-**Data Quality (30%):** Is the dataset immediately usable for analysis? Are types correct and missing values explicit?
-**Git History (30%):** Do commits tell a story? Are they atomic and well-described?
-**Documentation (40%):** Can you clearly explain your cleaning strategy and key decisions?
+**Data Quality (25%):** Is the dataset immediately usable for analysis? Are types correct and missing values explicit?
+**Git History (25%):** Do commits tell a story? Are they atomic and well-described?
+**Documentation (30%):** Can you clearly explain your cleaning strategy and key decisions?
+**Reproducibility (20%):** Does your run.sh script successfully recreate all results from scratch?
 
 ## Git Workflow Quick Reference
 
@@ -79,42 +83,89 @@ git push -u origin documentation
 git checkout master
 git merge documentation
 git push origin master
+
+# Final: Reproducibility Script
+# After all branches are merged, create run.sh
+git add run.sh
+git commit -m "Add reproducibility script for complete pipeline"
+git push origin master
 ```
+
+## Reproducibility: Dependencies and Automation
+
+Science demands reproducibility. Your analysis might be brilliant, but if no one else can recreate your results, it loses much of its value. Reproducibility requires two critical components: locked dependencies and automated execution.
+
+### Managing Dependencies with uv
+
+Different Python versions and library versions can produce different results. The pandas version you use today might handle data differently than the version someone else installs tomorrow. This is why we use `uv` for dependency management in this project.
+
+When you install packages using `uv add <package-name>`, uv automatically updates your `pyproject.toml` file with the package name and updates `uv.lock` with the exact versions of all dependencies. This lock file ensures that anyone running your code gets precisely the same library versions you used. Never manually edit `uv.lock`. Let uv manage it for you.
+
+Before you submit, verify that your `pyproject.toml` includes all packages your scripts need. Check that your Python version is specified correctly in the `requires-python` field. When someone clones your repository and runs `uv sync`, they should get an identical environment to yours.
+
+### The run.sh Script
+
+Beyond locked dependencies, you need automated execution. Create a shell script named `run.sh` in the root of your project that executes your entire pipeline from start to finish. This script should use uv to ensure the correct Python environment.
+
+Your script needs to accomplish several things. First, it should sync the environment using `uv sync` to install all dependencies from the lock file. Then it should execute your data processing scripts using `uv run python <script>` to ensure they run in the correct environment. Each step should process the raw data files in the data folder, generate the tidy datasets in data/preprocessed, and create the visualization in paper/figs.
+
+Here's the pattern your run.sh should follow:
+
+```bash
+#!/bin/bash
+
+# Sync dependencies from lock file
+uv sync
+
+# Run your pipeline steps
+uv run python workflow/process_mortality.py
+uv run python workflow/process_gdp.py
+uv run python workflow/merge_data.py
+uv run python workflow/create_visualization.py
+```
+
+Your actual script will use the filenames you created. The key principle remains the same: each command uses `uv run` to execute Python scripts in the locked environment.
+
+Make sure your script is executable with `chmod +x run.sh`. Then test it thoroughly. Remove your generated files and run `bash run.sh` to verify it produces identical results. This final check ensures your work is truly reproducible. When someone clones your repository three years from now, they should be able to run this single command and recreate everything.
 
 ## Submission
 
-Submit the link to your GitHub repository to Brightspace. We will review your commit history across all branches.
+Submit the link to your GitHub repository to Brightspace. We will review your commit history across all branches, and we expect to find a working run.sh script that reproduces your entire analysis pipeline.
 
 ## Set up
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/). And then create a virtual environment using:
+Start by installing [uv](https://docs.astral.sh/uv/getting-started/installation/), a modern Python package manager that ensures reproducible environments. Once installed, uv handles everything: creating virtual environments, installing packages, and locking dependencies.
 
-Open `pyproject.toml` in a text editor and change the project name and add your project dependencies.
-
-If you want to install a Python package, run:
+The project already has a `pyproject.toml` file with essential dependencies. You should update the project name in this file to something meaningful for your work. When you need additional Python packages, install them using:
 
 ```bash
 uv add <package-name>
 ```
 
-If you need to install non-Python dependencies, you can use conda or mamba as described below.
+This command does three things automatically. It installs the package in your project's virtual environment, adds it to `pyproject.toml`, and updates `uv.lock` with exact version information. The lock file guarantees that anyone running your code gets identical package versions.
 
-#### Miniforge
+To sync your environment with the project's dependencies (useful after cloning or when `pyproject.toml` changes), run:
 
-Install miniforge [GitHub - conda-forge/miniforge: A conda-forge distribution.](https://github.com/conda-forge/miniforge).
+```bash
+uv sync
+```
 
-First create a virtual environment for the project.
+To run Python scripts in your project environment, use:
 
-    mamba create -n project_env_name python=3.7
-    mamba activate project_env_name
+```bash
+uv run python <script-name>.py
+```
 
-Install `ipykernel` for Jupyter.
+If you prefer working in Jupyter notebooks and need to install system dependencies beyond Python packages, you can use conda or mamba. Install miniforge from [GitHub - conda-forge/miniforge](https://github.com/conda-forge/miniforge), then create an environment:
 
-    mamba install -y -c bioconda -c conda-forge ipykernel numpy pandas scipy matplotlib seaborn tqdm
+```bash
+mamba create -n sprint_env python=3.9
+mamba activate sprint_env
+mamba install -y -c conda-forge ipykernel
+python -m ipykernel install --user --name sprint_kernel
+```
 
-Create a kernel for the virtual environment that you can use in Jupyter lab/notebook.
-
-    python -m ipykernel install --user --name project_env_kernel_name
+However, for this sprint project, uv should handle all your needs. The packages in `pyproject.toml` (pandas, matplotlib, seaborn) are sufficient for the tasks ahead.
 
 ## Kickstarter code
 
