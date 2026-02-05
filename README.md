@@ -8,6 +8,13 @@ This sprint challenges you to clean messy Data into tidy format while maintainin
 
 Repo: https://github.com/skojaku/applsoftcomp-sprint-m01
 
+Clone the repo under your local by 
+
+```bash
+git clone <url>
+```
+where url is `https://github.com/skojaku/applsoftcomp-sprint-m01`.
+
 ### Instructions
 **Phase 1: data-formatting**: Create a new branch from your master/main. Transform the messy CSV files in your data folder into tidy format. Save your cleaned files to `data/preprocessed`. Then merge the two datasets into a single table with columns `geo`, `name`, `mortality_rate`, `gdpcapita`, and `year` (geo must be the first column). Commit your work frequently with clear messages explaining your reasoning, and merge into master.
 
