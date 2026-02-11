@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "==> Installing dependencies..."
+echo "==> Syncing dependencies using uv..."
 uv sync
 
-echo "==> Running Phase 1..."
-uv run python workflow/phase1_data_formatting.py
+echo "==> Running full pipeline (data formatting + visualization)..."
+uv run python workflow/Merged_plot_code.py
 
-echo "==> Running Phase 2..."
-uv run python workflow/phase2_visualization.py
-
-echo "✅ Pipeline complete."
-echo "Check outputs:"
-echo " - data/preprocessed/"
-echo " - paper/figs/"
+echo "✅ Pipeline finished successfully."
+echo "Generated outputs:"
+echo " - data/preprocessed/merged_mortality_gdp.csv"
+echo " - paper/figs/mortality_vs_gdp_scatter.png"
