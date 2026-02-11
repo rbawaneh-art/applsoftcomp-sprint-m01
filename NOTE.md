@@ -1,21 +1,175 @@
+# Sprint Project – Documentation (Phase 3)
 
-This sprint challenges you to clean messy Data into tidy format while maintaining granular Git history. **Time Limit:** 60 minutes of work, followed by class presentations. 
+## 1. Overview
 
-Repo: https://github.com/skojaku/applsoftcomp-sprint-m01
-### Instructions
-**Phase 1: data-formatting**: Create a new branch from your master/main. Transform the messy CSV files in your data folder into tidy format. Save your cleaned files to `data/preprocessed`. Then merge the two datasets into a single table with columns `geo`, `name`, `mortality_rate`, `gdpcapita`, and `year` (geo must be the first column). Commit your work frequently with clear messages explaining your reasoning, and merge into master.
+This project analyzes the relationship between child mortality rate and GDP per capita over time. 
+The objective is to understand how economic development relates to public health outcomes across countries.
 
-**Phase 2: visualization**: Create a new branch from your updated master. Build a scatter plot showing child mortality rate (Y-axis) versus GDP per capita (X-axis), with colors indicating the year of each observation. Save your figure to `paper/figs`. Commit your visualization code and output, push to GitHub, and merge into master.
+The workflow consisted of three main phases:
+1. Data formatting and cleaning
+2. Visualization
+3. Documentation
 
-**Phase 3: documentation**: Branch again from updated master/main. Write a document at `paper/NOTE.md` that explains your data cleaning strategy, visualization choices, and the key insights revealed by your analysis. This documentation should help future collaborators understand not just what you did, but why you made those choices. Commit, push to GitHub, and merge into master.
+This document explains the reasoning behind the data preparation steps, visualization decisions, and the key insights obtained from the analysis.
 
-**Phase 4: reproducibility**: After merging all three branches, create a shell script called `run.sh` in your project root. This script must execute your entire pipeline from raw data to final figure. Use `uv sync` to install dependencies and `uv run python <script>` to execute your workflow scripts. Test your script by deleting all generated files and running `bash run.sh` to verify it recreates everything. Commit this script to master.
+---
 
-Submit the link to your GitHub repository on Brightspace. We will review your commit history across all branches and verify that your `run.sh` script successfully reproduces your analysis.
-#### Evaluation Criteria
+## 2. Data Cleaning Strategy
 
-- **Data Quality (20%):** Is your dataset immediately usable for analysis? Are data types correct and missing values explicit?
-- **Git History (20%):** Do your commits tell a coherent story with clear reasoning?
-- **Documentation (30%):** Can you clearly explain your cleaning strategy, visualization choices, and insights?
-- **Reproducibility (30%):** Does your `run.sh` script successfully recreate all results from scratch?
+### 2.1 Converting Wide Data to Tidy Format
 
+Both datasets (GDP per capita and child mortality) were originally in wide format, where:
+- Each row represented a country
+- Each column represented a year
+
+To make the data suitable for analysis and visualization, the datasets were transformed into **tidy format** using `pandas.melt()`, resulting in:
+
+- `geo`
+- `name`
+- `year`
+- `gdpcapita` OR `mortality_rate`
+
+This transformation ensures:
+- Each row represents a single country–year observation
+- The dataset can be easily merged
+- The data structure follows tidy data principles
+
+---
+
+### 2.2 Merging the Datasets
+
+The two tidy datasets were merged using an outer join on:
+
+- `geo`
+- `name`
+- `year`
+
+An outer merge was chosen to:
+- Preserve all available observations
+- Avoid unintentionally dropping countries or years
+
+The final merged table contains:
+
+- `geo`
+- `name`
+- `mortality_rate`
+- `gdpcapita`
+- `year`
+
+---
+
+### 2.3 Handling Missing Data
+
+The following countries contained missing values:
+
+- Andorra
+- Dominica
+- St. Kitts and Nevis
+- Liechtenstein
+- Marshall Islands
+- Nauru
+- Palau
+- San Marino
+- Tuvalu
+
+For these countries, missing numerical values were replaced with `0`.
+
+This choice was made because:
+- Some countries were entirely missing from one dataset.
+- The project instructions required explicitly addressing missing data.
+- Replacing with zero allows these countries to remain in the dataset without causing merge or plotting errors.
+
+---
+
+## 3. Visualization Choices
+
+### 3.1 Scatter Plot Design
+
+A scatter plot was chosen because it is appropriate for examining the relationship between two continuous variables:
+
+- X-axis: GDP per capita
+- Y-axis: Child mortality rate
+- Color: Year
+
+Each point represents a single country-year observation.
+
+---
+
+### 3.2 Log Scale on GDP
+
+GDP per capita spans several orders of magnitude across countries.  
+To avoid compression of low-income countries and improve readability, the X-axis was transformed using a logarithmic scale.
+
+This allows:
+- Better visual separation of low- and middle-income countries
+- A clearer representation of the economic gradient
+
+---
+
+### 3.3 Color Encoding of Time
+
+Year was encoded using a continuous color scale.
+
+This allows us to:
+- Observe temporal progression
+- Detect whether global mortality rates decrease over time
+- Identify long-term development trends
+
+---
+
+## 4. Key Insights
+
+The visualization reveals several important patterns:
+
+### 4.1 Strong Negative Relationship
+
+There is a clear inverse relationship between GDP per capita and child mortality rate:
+- Countries with higher GDP per capita tend to have lower child mortality.
+- Low-income countries exhibit significantly higher mortality rates.
+
+This pattern aligns with well-established development economics findings.
+
+---
+
+### 4.2 Global Improvement Over Time
+
+Color progression across years shows that:
+
+- Earlier years are associated with higher mortality levels.
+- Over time, most countries shift downward (lower mortality) and rightward (higher GDP).
+
+This indicates:
+- Economic growth
+- Improvements in healthcare systems
+- Better access to nutrition, sanitation, and vaccination
+
+---
+
+### 4.3 Diminishing Returns at High GDP Levels
+
+At very high GDP levels:
+- Mortality rates approach very low values.
+- Additional GDP increases result in smaller reductions in mortality.
+
+This suggests that beyond a certain development threshold, non-economic factors may play a larger role in further improvements.
+
+---
+
+## 5. Conclusion
+
+This project demonstrates a clear and consistent relationship between economic development and child survival outcomes.
+
+By transforming the raw data into tidy format, carefully merging datasets, addressing missing values, and selecting appropriate visualization techniques, we were able to uncover meaningful global patterns.
+
+The analysis highlights the importance of economic development as a driver of public health improvements while also suggesting diminishing marginal returns at higher income levels.
+
+---
+
+## 6. Reproducibility
+
+All data processing and visualization steps are implemented in Python scripts:
+
+- `phase1_data_formatting.py`
+- `phase2_visualization.py`
+
+These scripts ensure that the entire workflow is reproducible and can be rerun if new data becomes available.
